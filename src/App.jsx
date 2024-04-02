@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './App.scss'
 
 import Participants from './Participants'
+import TournamentSelect from './TournamentSelect';
 
 /*
 
@@ -12,12 +13,27 @@ tournament Slayer = 40920
 
 function App() {
   const [loading, setLoading] = useState(false);
+  const [tournaments, setTournaments] = useState([])
   const [inputState, setInputState] = useState("")
   const [tournamentId, setTournamentId] = useState(null)
   const [tournamentData, setTournamentData] = useState(null)
   const [totalCompetitionExp, setTotalCompetitionExp] = useState(null)
   const [totalStandings, setTotalStandings] = useState([])
   const [addedTournaments, setAddedTournaments] = useState([])
+
+  useEffect(() => {
+    fetch("https://api.wiseoldman.net/v2/groups/7020/competitions")
+    .then(response => response.json())
+    .then(data => {
+      let fetchedTournaments = [];
+      data.filter(x => x.title.includes("Skill")).forEach(x => {
+        const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
+        const currentTournamentData = [x.id, x.title, weekNumber]
+        fetchedTournaments.push(currentTournamentData)
+      })
+      setTournaments(fetchedTournaments)
+    })
+  }, [])
 
   useEffect(() => {
     if (!tournamentId || typeof tournamentId !== 'number' || tournamentId <= 0) return;
@@ -38,12 +54,17 @@ function App() {
 
   return (
    <>
+    <TournamentSelect tournaments={tournaments} selectTournament={selectTournament}/>
     <p>{addedTournaments.length} Tournaments added: {addedTournaments.map((x, i) => <><span>{x}</span>{i < addedTournaments.length - 1 ? " | " : ""}</>)}</p>
     <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
     <button onClick={() => setTournamentId(Number(inputState))}>{loading ? "Loading..." : "Submit"}</button>
     <Participants totalStandings={totalStandings} />
    </>
   )
+
+  function selectTournament(tournamentId) {
+    setInputState(tournamentId)
+  }
 
   function newTournament(tournament) {
     const totalXp = calculateTotalTournamentExp(tournament)
