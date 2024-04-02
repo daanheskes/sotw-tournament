@@ -1,6 +1,6 @@
 function Participants({totalStandings}) {
 
-    const maximumPlayersShown = 30;
+    const maximumPlayersShown = 50;
 
     return (
         <>

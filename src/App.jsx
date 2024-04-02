@@ -38,6 +38,7 @@ function App() {
 
   return (
    <>
+    <p>{addedTournaments.length} Tournaments added: {addedTournaments.map((x, i) => <><span>{x}</span>{i < addedTournaments.length - 1 ? " | " : ""}</>)}</p>
     <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
     <button onClick={() => setTournamentId(Number(inputState))}>{loading ? "Loading..." : "Submit"}</button>
     <Participants totalStandings={totalStandings} />
@@ -78,33 +79,22 @@ function App() {
   }
 
   function calculatePoints(rank, participantXpGained) {
-    
-    /*
-    1st place - 5 points
-    2nd place - 4 points
-    3rd place - 3 points
-    4th place - 2 points
-    5th place - 1 point
-
-    0.2 point per 1% of total XP gained
-    */
-
     let points = 0;
 
     if (rank === 1) {
-        points += 5;
-    }
-    if (rank === 2) {
-        points += 4;
-    }
-    if (rank === 3) {
         points += 3;
     }
-    if (rank === 4) {
+    if (rank === 2) {
         points += 2;
     }
-    if (rank === 5) {
+    if (rank === 3) {
+        points += 1.5;
+    }
+    if (rank === 4) {
         points += 1;
+    }
+    if (rank === 5) {
+        points += 0.5;
     }
     const expNeededPerPoint = Math.floor(totalCompetitionExp / 100);
 
