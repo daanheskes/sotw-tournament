@@ -4,14 +4,8 @@ import './App.scss'
 import Participants from './Participants'
 import TournamentSelect from './TournamentSelect';
 
-/*
-
-tournament Smithing = 40642
-tournament Slayer = 40920
-
-*/
-
 function App() {
+  const groupId = 7020;
   const [loading, setLoading] = useState(false);
   const [tournaments, setTournaments] = useState([])
   const [inputState, setInputState] = useState("")
@@ -22,11 +16,11 @@ function App() {
   const [addedTournaments, setAddedTournaments] = useState([])
 
   useEffect(() => {
-    fetch("https://api.wiseoldman.net/v2/groups/7020/competitions")
+    fetch(`https://api.wiseoldman.net/v2/groups/${groupId}/competitions`)
     .then(response => response.json())
     .then(data => {
       let fetchedTournaments = [];
-      data.filter(x => x.title.includes("Skill")).forEach(x => {
+      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).forEach(x => {
         const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
         const currentTournamentData = [x.id, x.title, weekNumber]
         fetchedTournaments.push(currentTournamentData)
@@ -37,7 +31,7 @@ function App() {
 
   useEffect(() => {
     if (!tournamentId || typeof tournamentId !== 'number' || tournamentId <= 0) return;
-    if (addedTournaments.includes(tournamentId)) return; // can't add the same tournament twice
+    if (addedTournaments.find(x => x[0] === tournamentId)) return; // can't add the same tournament twice
     setLoading(true);
   
     fetch("https://api.wiseoldman.net/v2/competitions/" + tournamentId)
@@ -55,9 +49,14 @@ function App() {
   return (
    <>
     <TournamentSelect tournaments={tournaments} selectTournament={selectTournament}/>
-    <p>{addedTournaments.length} Tournaments added: {addedTournaments.map((x, i) => <><span>{x}</span>{i < addedTournaments.length - 1 ? " | " : ""}</>)}</p>
-    <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
-    <button onClick={() => setTournamentId(Number(inputState))}>{loading ? "Loading..." : "Submit"}</button>
+    <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
+      <ol>
+        {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}>{x[1]}</li>)}
+      </ol>
+    <div className="tournament-form">
+      <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
+      <button onClick={() => setTournamentId(Number(inputState))}>{loading ? "Loading..." : "Add"}</button>
+    </div>
     <Participants totalStandings={totalStandings} />
    </>
   )
@@ -72,7 +71,7 @@ function App() {
     setTournamentData(tournament)
 
     const addedTournamentsCopy = [...addedTournaments]
-    addedTournamentsCopy.push(tournament.id)
+    addedTournamentsCopy.push([tournament.id, tournament.title])
     setAddedTournaments(addedTournamentsCopy)
   }
 
@@ -99,6 +98,10 @@ function App() {
     setLoading(false);
   }
 
+  function roundNumber(value){
+    return +parseFloat(value).toFixed(1);
+  }
+
   function calculatePoints(rank, participantXpGained) {
     let points = 0;
 
@@ -118,8 +121,7 @@ function App() {
         points += 0.5;
     }
     const expNeededPerPoint = Math.floor(totalCompetitionExp / 100);
-
-    points += Math.floor(participantXpGained / expNeededPerPoint) * 0.3;
+    points += roundNumber(participantXpGained / expNeededPerPoint * 0.3);
     return formatNumber(points);
   }
 

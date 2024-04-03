@@ -5,6 +5,33 @@
   text-align: center;
 }
 
-.card {
-  padding: 2em;
+input {
+  height: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
+  width: 84px;
+}
+
+select {
+  height: 34px;
+  padding: 0 6px;
+}
+
+p {
+  margin: 6px 0;
+  padding: 0;
+}
+
+.tournament-form {
+  display: flex;
+  align-items: stretch;
+  margin: 12px 0;
+}
+
+ol {
+  margin: 0;
+}
+
+button {
+  margin-left: 6px;
 }

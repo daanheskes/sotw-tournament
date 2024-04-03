@@ -9,7 +9,7 @@ function TournamentSelect({tournaments, selectTournament}) {
     }
 
     function isRecent(tournament) {
-        const pastTournamentsAmount = 6;
+        const pastTournamentsAmount = 8;
         const currentWeekNumber = getCurrentWeekNumber();
         return (tournament[2] <= currentWeekNumber) && (Math.abs(tournament[2] - currentWeekNumber) <= pastTournamentsAmount);
     }
