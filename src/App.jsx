@@ -112,8 +112,8 @@ function App() {
 
   function addParticipantsPoints(participations) {
     let totalStandingsCopy = [...totalStandings];
-
-    const minGainsToBeListed = totalCompetitionExp / 1000 // 0.1% of total XP/KC
+    const minGainsToBeListed = 1
+  
     participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
       const tournamentRank = i + 1;
       const playerId = x.playerId
@@ -160,6 +160,7 @@ function App() {
   }
 
   function calculateTotalTournamentExp(tournamentData) {
+    if (tournamentData.message) return;
     return tournamentData.participations.reduce((acc, curr) => acc + curr.progress.gained, 0)
   }
 
