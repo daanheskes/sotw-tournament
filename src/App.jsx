@@ -132,10 +132,6 @@ function App() {
     setLoading(false);
   }
 
-  function roundNumber(value){
-    return +parseFloat(value).toFixed(2);
-  }
-
   function calculatePoints(rank, participantXpGained) {
     let points = 0;
 
@@ -154,8 +150,10 @@ function App() {
     if (rank === 5) {
         points += 0.5;
     }
-    const expNeededPerPoint = Math.floor(totalCompetitionExp / 100);
-    points += roundNumber(participantXpGained / expNeededPerPoint * 0.3);
+    const expNeededPerShare = totalCompetitionExp / 100;
+    const pointsPerShare = 0.3;
+
+    points += participantXpGained / expNeededPerShare * pointsPerShare;
     return formatNumber(points);
   }
 
