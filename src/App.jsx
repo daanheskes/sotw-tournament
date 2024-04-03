@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import './App.scss'
 
 import Participants from './Participants'
-import TournamentSelect from './TournamentSelect';
+import TournamentSelect from './TournamentSelect'
 
 function App() {
-  const groupId = 7020;
-  const participantsLimitOptions = [20, 35, 50, 100, 200];
+  const groupId = 7020
+  const participantsLimitOptions = [20, 35, 50, 100, 200]
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
   const [tournaments, setTournaments] = useState([])
   const [inputState, setInputState] = useState("")
   const [tournamentId, setTournamentId] = useState(null)
@@ -16,15 +16,15 @@ function App() {
   const [totalCompetitionExp, setTotalCompetitionExp] = useState(null)
   const [totalStandings, setTotalStandings] = useState([])
   const [addedTournaments, setAddedTournaments] = useState([])
-  const [participantsToShow, setParticipantsToShow] = useState(35);
+  const [participantsToShow, setParticipantsToShow] = useState(35)
 
-  const optionRef = useRef(null);
+  const optionRef = useRef(null)
 
   useEffect(() => {
     fetch(`https://api.wiseoldman.net/v2/groups/${groupId}/competitions`)
     .then(response => response.json())
     .then(data => {
-      let fetchedTournaments = [];
+      let fetchedTournaments = []
       data.filter(x => x.title.includes("Skill") || x.title.includes("League")).sort((a, b) => a.id - b.id).forEach((x, i) => {
         if (i === 0) setInputState(x.id)
         const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
@@ -36,19 +36,19 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!tournamentId || typeof tournamentId !== 'number' || tournamentId <= 0) return;
-    if (addedTournaments.find(x => x[0] === tournamentId)) return; // can't add the same tournament twice
-    setLoading(true);
+    if (!tournamentId || typeof tournamentId !== 'number' || tournamentId <= 0 || tournamentId > 999999) return
+    if (addedTournaments.find(x => x[0] === tournamentId)) return // can't add the same tournament twice
+    setLoading(true)
   
     fetch("https://api.wiseoldman.net/v2/competitions/" + tournamentId)
     .then(response => response.json())
     .then(data => {
-      newTournament(data);
+      newTournament(data)
     })
-  }, [tournamentId]);
+  }, [tournamentId])
 
   useEffect(() => {
-    if (!tournamentData) return;
+    if (!tournamentData) return
     addParticipantsPoints(tournamentData.participations)
   }, [tournamentData])
 
@@ -101,6 +101,10 @@ function App() {
   }
 
   function newTournament(tournament) {
+    if (tournament.message) {
+      setLoading(false)
+      return
+    }
     const totalXp = calculateTotalTournamentExp(tournament)
     setTotalCompetitionExp(totalXp)
     setTournamentData(tournament)
@@ -111,11 +115,11 @@ function App() {
   }
 
   function addParticipantsPoints(participations) {
-    let totalStandingsCopy = [...totalStandings];
+    let totalStandingsCopy = [...totalStandings]
     const minGainsToBeListed = 1
   
     participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
-      const tournamentRank = i + 1;
+      const tournamentRank = i + 1
       const playerId = x.playerId
       const playerName = x.player.displayName
       const points = calculatePoints(tournamentRank, x.progress.gained)
@@ -128,39 +132,38 @@ function App() {
         // playerId doesn't exist, add new player
         totalStandingsCopy.push([playerId, playerName, points])
       }
-    });
+    })
 
-    setTotalStandings(totalStandingsCopy);
-    setLoading(false);
+    setTotalStandings(totalStandingsCopy)
+    setLoading(false)
   }
 
   function calculatePoints(rank, participantXpGained) {
-    let points = 0;
+    let points = 0
 
     if (rank === 1) {
-        points += 3;
+        points += 3
     }
     if (rank === 2) {
-        points += 2;
+        points += 2
     }
     if (rank === 3) {
-        points += 1.5;
+        points += 1.5
     }
     if (rank === 4) {
-        points += 1;
+        points += 1
     }
     if (rank === 5) {
-        points += 0.5;
+        points += 0.5
     }
-    const expNeededPerShare = totalCompetitionExp / 100;
-    const pointsPerShare = 0.3;
+    const expNeededPerShare = totalCompetitionExp / 100
+    const pointsPerShare = 0.3
 
-    points += participantXpGained / expNeededPerShare * pointsPerShare;
-    return formatNumber(points);
+    points += participantXpGained / expNeededPerShare * pointsPerShare
+    return formatNumber(points)
   }
 
   function calculateTotalTournamentExp(tournamentData) {
-    if (tournamentData.message) return;
     return tournamentData.participations.reduce((acc, curr) => acc + curr.progress.gained, 0)
   }
 
