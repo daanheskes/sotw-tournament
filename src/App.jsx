@@ -20,7 +20,8 @@ function App() {
     .then(response => response.json())
     .then(data => {
       let fetchedTournaments = [];
-      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).forEach(x => {
+      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).forEach((x, i) => {
+        if (i === 0) setInputState(x.id)
         const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
         const currentTournamentData = [x.id, x.title, weekNumber]
         fetchedTournaments.push(currentTournamentData)
