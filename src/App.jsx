@@ -6,6 +6,8 @@ import TournamentSelect from './TournamentSelect';
 
 function App() {
   const groupId = 7020;
+  const participantsLimitOptions = [20, 35, 50, 100, 200];
+
   const [loading, setLoading] = useState(false);
   const [tournaments, setTournaments] = useState([])
   const [inputState, setInputState] = useState("")
@@ -14,6 +16,7 @@ function App() {
   const [totalCompetitionExp, setTotalCompetitionExp] = useState(null)
   const [totalStandings, setTotalStandings] = useState([])
   const [addedTournaments, setAddedTournaments] = useState([])
+  const [participantsToShow, setParticipantsToShow] = useState(35);
 
   useEffect(() => {
     fetch(`https://api.wiseoldman.net/v2/groups/${groupId}/competitions`)
@@ -51,16 +54,45 @@ function App() {
    <>
     <TournamentSelect tournaments={tournaments} selectTournament={selectTournament}/>
     <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
-      <ol>
-        {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}><a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a></li>)}
-      </ol>
+    <ol>
+      {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}><a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a></li>)}
+    </ol>
+    {
+      addedTournaments.length > 0 ? <a onClick={() => resetAll()}>Reset</a> : null
+    }
     <div className="tournament-form">
       <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
       <button onClick={() => setTournamentId(Number(inputState))}>{loading ? "Loading..." : "Add"}</button>
     </div>
-    <Participants totalStandings={totalStandings} />
+    <Participants totalStandings={totalStandings} participantsToShow={participantsToShow} />
+    {
+      addedTournaments.length > 0
+      ? (
+        <div className="limit-participants">
+          <span className="show">Results to show</span>
+          <select onChange={(e) => setParticipantsToShow(e.target[e.target.selectedIndex].id)} value={participantsToShow}>
+            {
+              participantsLimitOptions.map(x => {
+                return <option id={x} key={x}>{x}</option>
+              })
+            }
+          </select>
+        </div>
+      ) : null
+    }
+    
    </>
   )
+
+  function resetAll() {
+    setLoading(false)
+    setInputState("")
+    setTournamentId(null)
+    setTournamentData(null)
+    setTotalCompetitionExp(null)
+    setTotalStandings([])
+    setAddedTournaments([])
+  }
 
   function selectTournament(tournamentId) {
     setInputState(tournamentId)
@@ -79,7 +111,8 @@ function App() {
   function addParticipantsPoints(participations) {
     let totalStandingsCopy = [...totalStandings];
 
-    participations.filter(x => x.progress.gained > Math.floor(totalCompetitionExp / 100)).map((x, i) => {
+    const minGainsToBeListed = totalCompetitionExp / 1000 // 0.1% of total XP/KC
+    participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
       const tournamentRank = i + 1;
       const playerId = x.playerId
       const playerName = x.player.displayName
@@ -100,7 +133,7 @@ function App() {
   }
 
   function roundNumber(value){
-    return +parseFloat(value).toFixed(1);
+    return +parseFloat(value).toFixed(2);
   }
 
   function calculatePoints(rank, participantXpGained) {

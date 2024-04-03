@@ -12,6 +12,10 @@ input {
   width: 84px;
 }
 
+a {
+  cursor: pointer;
+}
+
 select {
   height: 34px;
   padding: 0 6px;
@@ -34,4 +38,13 @@ ol {
 
 button {
   margin-left: 6px;
+}
+
+.limit-participants {
+  margin-top: 12px;
+}
+
+.show {
+  font-size: 0.8em; 
+  margin-right: 4px;
 }
