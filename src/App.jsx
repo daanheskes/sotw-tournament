@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.scss'
 
 import Participants from './Participants'
@@ -17,6 +17,8 @@ function App() {
   const [totalStandings, setTotalStandings] = useState([])
   const [addedTournaments, setAddedTournaments] = useState([])
   const [participantsToShow, setParticipantsToShow] = useState(35);
+
+  const optionRef = useRef(null);
 
   useEffect(() => {
     fetch(`https://api.wiseoldman.net/v2/groups/${groupId}/competitions`)
@@ -52,7 +54,7 @@ function App() {
 
   return (
    <>
-    <TournamentSelect tournaments={tournaments} selectTournament={selectTournament}/>
+    <TournamentSelect tournaments={tournaments} selectTournament={selectTournament} optionRef={optionRef} />
     <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
     <ol>
       {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}><a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a></li>)}
@@ -86,7 +88,7 @@ function App() {
 
   function resetAll() {
     setLoading(false)
-    setInputState("")
+    setInputState(optionRef.current.selectedOptions[0].id)
     setTournamentId(null)
     setTournamentData(null)
     setTotalCompetitionExp(null)

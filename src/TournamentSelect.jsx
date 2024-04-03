@@ -1,4 +1,4 @@
-function TournamentSelect({tournaments, selectTournament}) {
+function TournamentSelect({ tournaments, selectTournament, optionRef }) {
 
     function getCurrentWeekNumber() {
         let now = new Date();
@@ -15,7 +15,7 @@ function TournamentSelect({tournaments, selectTournament}) {
     }
 
     return (
-        <select onChange={(e) => selectTournament(e.target[e.target.selectedIndex].id)}>
+        <select onChange={(e) => selectTournament(e.target[e.target.selectedIndex].id)} ref={optionRef}>
             {
                 tournaments.filter(isRecent).map(x => {
                     return <option key={x[0]} id={x[0]}>{x[1]}</option>
