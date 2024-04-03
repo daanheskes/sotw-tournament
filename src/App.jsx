@@ -20,7 +20,7 @@ function App() {
     .then(response => response.json())
     .then(data => {
       let fetchedTournaments = [];
-      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).forEach((x, i) => {
+      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).sort((a, b) => a.id - b.id).forEach((x, i) => {
         if (i === 0) setInputState(x.id)
         const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
         const currentTournamentData = [x.id, x.title, weekNumber]
@@ -52,7 +52,7 @@ function App() {
     <TournamentSelect tournaments={tournaments} selectTournament={selectTournament}/>
     <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
       <ol>
-        {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}>{x[1]}</li>)}
+        {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}><a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a></li>)}
       </ol>
     <div className="tournament-form">
       <label>Tournament ID: <input type="text" onChange={(e) => setInputState(e.target.value)} value={inputState} /></label>
