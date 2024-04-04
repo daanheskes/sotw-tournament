@@ -6,7 +6,7 @@ import TournamentSelect from './TournamentSelect'
 
 function App() {
   const groupId = 7020
-  const participantsLimitOptions = [20, 35, 50, 100, 200]
+  const participantsLimitOptions = [5, 10, 20, 35, 50, 100, 200]
 
   const [loading, setLoading] = useState(false)
   const [tournaments, setTournaments] = useState([])
@@ -57,7 +57,15 @@ function App() {
     <TournamentSelect tournaments={tournaments} selectTournament={selectTournament} optionRef={optionRef} />
     <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
     <ol>
-      {addedTournaments.map(x => <li key={x[0]} title={`Tournament ID: ${x[0]}`}><a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a></li>)}
+      {
+      addedTournaments.map(x => {
+          return (
+            <li key={x[0]} title={`Tournament ID: ${x[0]}`}>
+              <a target="_blank" rel="noreferrer" href={`https://wiseoldman.net/competitions/${x[0]}/`}>{x[1]}</a>
+            </li>
+          )
+        })
+      }
     </ol>
     {
       addedTournaments.length > 0 ? <a onClick={() => resetAll()}>Reset</a> : null
@@ -122,7 +130,9 @@ function App() {
       const tournamentRank = i + 1
       const playerId = x.playerId
       const playerName = x.player.displayName
-      const points = calculatePoints(tournamentRank, x.progress.gained)
+      const startingLevel = x.levels.start
+      const accountType = x.player.type
+      const points = calculatePoints(tournamentRank, x.progress.gained, startingLevel, accountType)
 
       const playerIndex = totalStandingsCopy.findIndex(x => x[0] === playerId)
       if (playerIndex >= 0) {
@@ -138,26 +148,23 @@ function App() {
     setLoading(false)
   }
 
-  function calculatePoints(rank, participantXpGained) {
+  function calculatePoints(rank, participantXpGained, startingLevel, accountType) {
+    const expNeededPerShare = totalCompetitionExp / 100
+    const pointsPerShare = 0.1
+
     let points = 0
 
     if (rank === 1) {
-        points += 3
+      points += 2.5
+    } else if (rank === 2) {
+      points += 2
+    } else if (rank === 3) {
+      points += 1.5
+    } if (rank === 4) {
+      points += 1
+    } if (rank === 5) {
+      points += 0.5
     }
-    if (rank === 2) {
-        points += 2
-    }
-    if (rank === 3) {
-        points += 1.5
-    }
-    if (rank === 4) {
-        points += 1
-    }
-    if (rank === 5) {
-        points += 0.5
-    }
-    const expNeededPerShare = totalCompetitionExp / 100
-    const pointsPerShare = 0.3
 
     points += participantXpGained / expNeededPerShare * pointsPerShare
     return formatNumber(points)
