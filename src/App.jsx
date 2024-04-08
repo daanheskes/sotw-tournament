@@ -25,10 +25,9 @@ function App() {
     .then(response => response.json())
     .then(data => {
       let fetchedTournaments = []
-      data.filter(x => x.title.includes("Skill") || x.title.includes("League")).sort((a, b) => a.id - b.id).forEach((x, i) => {
+      data.filter(x => x.title.includes("Skill")).sort((a, b) => a.id - b.id).forEach((x, i) => {
         if (i === 0) setInputState(x.id)
-        const weekNumber = x.title.match(/#\d{1,2}/)[0].replace("#", "")
-        const currentTournamentData = [x.id, x.title, weekNumber]
+        const currentTournamentData = [x.id, x.title, x.startsAt]
         fetchedTournaments.push(currentTournamentData)
       })
       setTournaments(fetchedTournaments)
@@ -54,7 +53,7 @@ function App() {
 
   return (
    <>
-    <TournamentSelect tournaments={tournaments} selectTournament={selectTournament} optionRef={optionRef} />
+    <TournamentSelect tournaments={tournaments} selectTournament={selectTournament} addedTournaments={addedTournaments} optionRef={optionRef} />
     <p>{addedTournaments.length} Tournament{addedTournaments.length !== 1 ? "s" : ""} added:</p>
     <ol>
       {

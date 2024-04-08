@@ -1,24 +1,23 @@
-function TournamentSelect({ tournaments, selectTournament, optionRef }) {
+function TournamentSelect({ tournaments, selectTournament, addedTournaments, optionRef }) {
 
-    function getCurrentWeekNumber() {
-        let now = new Date();
-        let onejan = new Date(now.getFullYear(), 0, 1);
-        let weekNumber = Math.ceil((((now.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
-
-        return weekNumber;
-    }
+    console.log(addedTournaments)
 
     function isRecent(tournament) {
-        const pastTournamentsAmount = 8;
-        const currentWeekNumber = getCurrentWeekNumber();
-        return (tournament[2] <= currentWeekNumber) && (Math.abs(tournament[2] - currentWeekNumber) <= pastTournamentsAmount);
+        const pastWeeksToShow = 6
+        const MAX_DIFF = 60 * 60 * 1000 * 24 * 7 * pastWeeksToShow
+
+        const date = new Date()
+        const tournamentStartDate = new Date(tournament[2])
+    
+        return (date > tournamentStartDate) && (date - tournamentStartDate <= MAX_DIFF)
     }
 
     return (
         <select onChange={(e) => selectTournament(e.target[e.target.selectedIndex].id)} ref={optionRef}>
             {
                 tournaments.filter(isRecent).map(x => {
-                    return <option key={x[0]} id={x[0]}>{x[1]}</option>
+                    const isAdded = addedTournaments.find(y => y[0] === x[0])
+                    return <option key={x[0]} id={x[0]} disabled={isAdded}>{x[1]}</option>
                 })
             }
         </select>
