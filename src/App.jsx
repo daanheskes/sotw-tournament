@@ -124,8 +124,11 @@ function App() {
   function addParticipantsPoints(participations) {
     let totalStandingsCopy = [...totalStandings]
     const minGainsToBeListed = 1
+
+    let pointsRatio = 1
   
     participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
+      const MAX_POINTS = 5;
       const tournamentRank = i + 1
       const playerId = x.playerId
       const playerName = x.player.displayName
@@ -133,13 +136,23 @@ function App() {
       const accountType = x.player.type
       const points = calculatePoints(tournamentRank, x.progress.gained, startingLevel, accountType)
 
+      if (i === 0) {
+        if (points > MAX_POINTS) {
+          pointsRatio = 1 / (points / MAX_POINTS)
+        } else {
+          pointsRatio = MAX_POINTS / points
+        }
+      }
+
+      console.log({points, pointsRatio});
+
       const playerIndex = totalStandingsCopy.findIndex(x => x[0] === playerId)
       if (playerIndex >= 0) {
         // playerId exists, add points
-        totalStandingsCopy[playerIndex] = [playerId, playerName, formatNumber(Number(totalStandingsCopy[playerIndex][2]) + Number(points))]
+        totalStandingsCopy[playerIndex] = [playerId, playerName, formatNumber(Number(totalStandingsCopy[playerIndex][2]) + Number(points * pointsRatio))]
       } else {
         // playerId doesn't exist, add new player
-        totalStandingsCopy.push([playerId, playerName, points])
+        totalStandingsCopy.push([playerId, playerName, formatNumber(points * pointsRatio)])
       }
     })
 
@@ -147,7 +160,7 @@ function App() {
     setLoading(false)
   }
 
-  function calculatePoints(rank, participantXpGained, startingLevel, accountType) {
+  function calculatePoints(rank, participantXpGained) {
     const expNeededPerShare = totalCompetitionExp / 100
     const pointsPerShare = 0.1
 
@@ -166,7 +179,8 @@ function App() {
     }
 
     points += participantXpGained / expNeededPerShare * pointsPerShare
-    return formatNumber(points)
+
+    return points
   }
 
   function calculateTotalTournamentExp(tournamentData) {

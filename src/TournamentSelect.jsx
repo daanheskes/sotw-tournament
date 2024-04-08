@@ -1,7 +1,5 @@
 function TournamentSelect({ tournaments, selectTournament, addedTournaments, optionRef }) {
 
-    console.log(addedTournaments)
-
     function isRecent(tournament) {
         const pastWeeksToShow = 6
         const MAX_DIFF = 60 * 60 * 1000 * 24 * 7 * pastWeeksToShow
