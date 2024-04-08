@@ -128,31 +128,30 @@ function App() {
     let pointsRatio = 1
   
     participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
-      const MAX_POINTS = 5;
+      const MAX_XP_SHARE_POINTS = 2.5;
       const tournamentRank = i + 1
       const playerId = x.playerId
       const playerName = x.player.displayName
-      const startingLevel = x.levels.start
-      const accountType = x.player.type
-      const points = calculatePoints(tournamentRank, x.progress.gained, startingLevel, accountType)
+      const rankPoints = calculateRankPoints(tournamentRank)
+      const xpSharePoints = calculateXpSharePoints(x.progress.gained)
 
-      if (i === 0) {
-        if (points > MAX_POINTS) {
-          pointsRatio = 1 / (points / MAX_POINTS)
+      if (tournamentRank === 1) {
+        if (xpSharePoints > MAX_XP_SHARE_POINTS) {
+          pointsRatio = 1 / (xpSharePoints / MAX_XP_SHARE_POINTS)
         } else {
-          pointsRatio = MAX_POINTS / points
+          pointsRatio = MAX_XP_SHARE_POINTS / xpSharePoints
         }
       }
 
-      console.log({points, pointsRatio});
-
       const playerIndex = totalStandingsCopy.findIndex(x => x[0] === playerId)
+      const totalPoints = rankPoints + (xpSharePoints * pointsRatio)
+
       if (playerIndex >= 0) {
         // playerId exists, add points
-        totalStandingsCopy[playerIndex] = [playerId, playerName, formatNumber(Number(totalStandingsCopy[playerIndex][2]) + Number(points * pointsRatio))]
+        totalStandingsCopy[playerIndex] = [playerId, playerName, Number(totalStandingsCopy[playerIndex][2] + totalPoints)]
       } else {
         // playerId doesn't exist, add new player
-        totalStandingsCopy.push([playerId, playerName, formatNumber(points * pointsRatio)])
+        totalStandingsCopy.push([playerId, playerName, Number(totalPoints)])
       }
     })
 
@@ -160,25 +159,29 @@ function App() {
     setLoading(false)
   }
 
-  function calculatePoints(rank, participantXpGained) {
-    const expNeededPerShare = totalCompetitionExp / 100
-    const pointsPerShare = 0.1
-
+  function calculateRankPoints(rank) {
     let points = 0
 
     if (rank === 1) {
-      points += 2.5
+      points = 2.5
     } else if (rank === 2) {
-      points += 2
+      points = 2
     } else if (rank === 3) {
-      points += 1.5
+      points = 1.5
     } if (rank === 4) {
-      points += 1
+      points = 1
     } if (rank === 5) {
-      points += 0.5
+      points = 0.5
     }
 
-    points += participantXpGained / expNeededPerShare * pointsPerShare
+    return points
+  }
+
+  function calculateXpSharePoints(participantXpGained) {
+    const expNeededPerShare = totalCompetitionExp / 100
+    const pointsPerShare = 0.1
+
+    const points = participantXpGained / expNeededPerShare * pointsPerShare
 
     return points
   }
