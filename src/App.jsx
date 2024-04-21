@@ -128,7 +128,7 @@ function App() {
     let pointsRatio = 1
   
     participations.filter(x => x.progress.gained >= minGainsToBeListed).map((x, i) => {
-      const MAX_XP_SHARE_POINTS = 2.5;
+      const MAX_XP_SHARE_POINTS = 3.75;
       const tournamentRank = i + 1
       const playerId = x.playerId
       const playerName = x.player.displayName
@@ -163,15 +163,15 @@ function App() {
     let points = 0
 
     if (rank === 1) {
-      points = 2.5
+      points = 1.25
     } else if (rank === 2) {
-      points = 2
-    } else if (rank === 3) {
-      points = 1.5
-    } if (rank === 4) {
       points = 1
-    } if (rank === 5) {
+    } else if (rank === 3) {
+      points = 0.75
+    } if (rank === 4) {
       points = 0.5
+    } if (rank === 5) {
+      points = 0.25
     }
 
     return points
